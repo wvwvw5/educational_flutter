@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчет анализа текстов</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #333; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #007bff; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #007bff; }
+        .stat-label { color: #666; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; font-weight: bold; }
+        .word-cloud { display: flex; flex-wrap: wrap; gap: 5px; margin: 20px 0; }
+        .word-tag { background: #e3f2fd; padding: 5px 10px; border-radius: 15px; font-size: 12px; }
+        .source-section { margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Отчет анализа текстов</h1>
+        <p><strong>Сгенерирован:</strong> 2025-10-24 12:15:25.191925</p>
+        
+        <h2>📈 Общая статистика</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Всего текстов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">86</div>
+                <div class="stat-label">Всего слов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">78</div>
+                <div class="stat-label">Уникальных слов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">195.0</div>
+                <div class="stat-label">Средняя читаемость</div>
+            </div>
+        </div>
+
+        <h2>🔤 Топ слова</h2>
+        <div class="word-cloud">
+            <span class="word-tag">и</span><span class="word-tag">в</span><span class="word-tag">dart</span><span class="word-tag">это</span><span class="word-tag">для</span><span class="word-tag">позволяет</span><span class="word-tag">программирование</span><span class="word-tag">задач</span><span class="word-tag">алгоритмы</span><span class="word-tag">структуры</span><span class="word-tag">данных</span><span class="word-tag">различных</span><span class="word-tag">обучение</span><span class="word-tag">множество</span><span class="word-tag">разработки</span><span class="word-tag">как</span><span class="word-tag">мобильных</span><span class="word-tag">так</span><span class="word-tag">увлекательный</span><span class="word-tag">вебприложений</span>
+        </div>
+
+        <h2>📝 Самые длинные слова</h2>
+        <div class="word-cloud">
+            <span class="word-tag">Программирование (16)</span><span class="word-tag">программирование (16)</span><span class="word-tag">увлекательный (13)</span><span class="word-tag">предоставляет (13)</span><span class="word-tag">вебприложений (13)</span><span class="word-tag">искусственный (13)</span><span class="word-tag">распознавания (13)</span><span class="word-tag">обрабатывать (12)</span><span class="word-tag">одновременно (12)</span><span class="word-tag">компьютерной (12)</span>
+        </div>
+
+        <h2>📊 Детальная статистика</h2>
+        <table>
+            <tr><th>Метрика</th><th>Значение</th></tr>
+            <tr><td>averageWordsPerText</td><td>28.666666666666668</td></tr><tr><td>averageUniqueWordsPerText</td><td>26.0</td></tr><tr><td>mostProductiveSource</td><td>Пример текста 3</td></tr><tr><td>totalCharacters</td><td>755</td></tr><tr><td>diversityScore</td><td>4.196432066277708</td></tr>
+        </table>
+
+        <h2>📁 Результаты по источникам</h2>
+                <div class="source-section">
+            <h3>Пример текста 1</h3>
+            <p><strong>Количество текстов:</strong> 1</p>
+            <p><strong>Общее количество слов:</strong> 29</p>
+            <p><strong>Средняя читаемость:</strong> 191.0</p>
+        </div>
+                <div class="source-section">
+            <h3>Пример текста 2</h3>
+            <p><strong>Количество текстов:</strong> 1</p>
+            <p><strong>Общее количество слов:</strong> 27</p>
+            <p><strong>Средняя читаемость:</strong> 197.4</p>
+        </div>
+                <div class="source-section">
+            <h3>Пример текста 3</h3>
+            <p><strong>Количество текстов:</strong> 1</p>
+            <p><strong>Общее количество слов:</strong> 30</p>
+            <p><strong>Средняя читаемость:</strong> 196.7</p>
+        </div>
+        
+    </div>
+</body>
+</html>
+    
