@@ -1,0 +1,10 @@
+Source,TextId,TotalWords,UniqueWords,ReadabilityScore,AverageWordLength
+Пример текста 1,1761300644384,29,27,191.05,8.21
+Пример текста 2,1761300644386,27,23,197.36,7.04
+Пример текста 3,1761300644386,30,28,196.69,7.53
+
+SUMMARY
+TotalTexts,3
+TotalWords,86
+TotalUniqueWords,78
+AverageReadability,195.03
