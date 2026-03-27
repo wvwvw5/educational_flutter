@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Практическая работа №9</title>
+<style>
+  body { font-family: 'Times New Roman', serif; font-size: 14px; line-height: 1.5; max-width: 800px; margin: 40px auto; padding: 20px; }
+  h1 { font-size: 16px; text-align: center; margin-top: 30px; }
+  h2 { font-size: 15px; margin-top: 20px; }
+  .title-page { text-align: center; page-break-after: always; margin-top: 60px; }
+  .title-page p { margin: 4px 0; }
+  .title-page .org { font-size: 13px; }
+  .title-page .subject { font-size: 16px; font-weight: bold; margin: 40px 0; }
+  .signatures { display: flex; justify-content: space-between; margin-top: 60px; }
+  .code { background: #f5f5f5; border: 1px solid #ddd; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; margin: 10px 0; overflow-x: auto; }
+  .figure { text-align: center; margin: 15px 0; font-style: italic; font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+  td, th { border: 1px solid #000; padding: 6px 10px; font-size: 13px; }
+  th { background: #f0f0f0; }
+  @media print { .title-page { page-break-after: always; } }
+</style>
+</head>
+<body>
+
+<div class="title-page">
+  <p class="org">Министерство науки и высшего образования Российской Федерации</p>
+  <p class="org">федеральное государственное бюджетное образовательное учреждение высшего образования</p>
+  <p class="org">«Российский экономический университет имени Г.В. Плеханова»</p>
+  <p class="org">Московский приборостроительный техникум</p>
+  <br><br>
+  <p class="subject">Практическая работа №9</p>
+  <p class="subject">МДК 04.01 Внедрение и поддержка компьютерных систем</p>
+  <p>Специальность: 09.02.07 Информационные системы и программирование</p>
+  <br>
+  <div class="signatures">
+    <div>
+      <p>Преподаватель</p>
+      <p>Куртева С.А.</p>
+      <p>«___» ________ 2025 год</p>
+    </div>
+    <div>
+      <p>Студент группы П50-х-22</p>
+      <p>Кононыхин Е.</p>
+      <p>«___» ________ 2025 год</p>
+    </div>
+  </div>
+  <br><br><br>
+  <p>Москва 2025</p>
+</div>
+
+<h1>ПРАКТИЧЕСКАЯ РАБОТА №9 — Галерея + Музыка</h1>
+
+<h2>Цель работы</h2>
+<p>Разработать мобильное приложение на Flutter, включающее:</p>
+<ul>
+  <li>Галерею фотографий и видео в виде ленты (Instagram-стиль) с перемоткой видео</li>
+  <li>Раздел «Музыка» с загрузкой аудио из файлов и по URL, воспроизведением, паузой и перемоткой</li>
+  <li>Хранение данных в базе Hive</li>
+  <li>Добавление геопозиции при сохранении фотографий (пакет geolocator)</li>
+</ul>
+
+<h2>Используемые технологии и пакеты</h2>
+<table>
+  <tr><th>Пакет</th><th>Назначение</th></tr>
+  <tr><td>video_player + chewie</td><td>Воспроизведение видео с контролами и перемоткой</td></tr>
+  <tr><td>just_audio</td><td>Воспроизведение аудио (файлы и URL)</td></tr>
+  <tr><td>image_picker</td><td>Выбор фото/видео из галереи и камеры</td></tr>
+  <tr><td>file_picker</td><td>Выбор аудиофайлов</td></tr>
+  <tr><td>hive + hive_flutter</td><td>Локальная NoSQL база данных</td></tr>
+  <tr><td>geolocator + geocoding</td><td>Получение GPS-координат и названия места</td></tr>
+  <tr><td>permission_handler</td><td>Управление разрешениями</td></tr>
+  <tr><td>uuid</td><td>Генерация уникальных идентификаторов</td></tr>
+</table>
+
+<h2>Структура проекта</h2>
+<div class="code">gallery_music/
+├── lib/
+│   ├── main.dart                    — точка входа, навигация
+│   ├── models/
+│   │   ├── media_item.dart          — модель фото/видео + Hive адаптер
+│   │   └── audio_item.dart          — модель аудио + Hive адаптер
+│   ├── services/
+│   │   ├── database_service.dart    — CRUD операции с Hive
+│   │   └── location_service.dart    — работа с GPS
+│   ├── screens/
+│   │   ├── gallery_screen.dart      — экран галереи (лента)
+│   │   └── music_screen.dart        — экран музыки
+│   └── widgets/
+│       └── video_player_widget.dart — виджет видеоплеера с Chewie
+├── pubspec.yaml
+└── android/ios — настройки разрешений</div>
+
+<h2>Файл main.dart</h2>
+<div class="code">import 'package:flutter/material.dart';
+import 'services/database_service.dart';
+import 'screens/gallery_screen.dart';
+import 'screens/music_screen.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseService.init();
+  runApp(const GalleryMusicApp());
+}
+
+class GalleryMusicApp extends StatelessWidget {
+  const GalleryMusicApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Gallery & Music',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorSchemeSeed: Colors.deepPurple,
+        useMaterial3: true,
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+  @override
+  State&lt;HomeScreen&gt; createState() =&gt; _HomeScreenState();
+}
+
+class _HomeScreenState extends State&lt;HomeScreen&gt; {
+  int _currentIndex = 0;
+  final _screens = const [GalleryScreen(), MusicScreen()];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_currentIndex == 0 ? 'Gallery' : 'Music'),
+        centerTitle: true,
+      ),
+      body: _screens[_currentIndex],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (i) =&gt; setState(() =&gt; _currentIndex = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.photo_library), label: 'Gallery'),
+          NavigationDestination(icon: Icon(Icons.music_note), label: 'Music'),
+        ],
+      ),
+    );
+  }
+}</div>
+
+<h2>Файл models/media_item.dart — модель медиа с Hive-адаптером</h2>
+<div class="code">import 'package:hive/hive.dart';
+
+enum MediaType { photo, video }
+
+class MediaItem {
+  final String id;
+  final String path;
+  final MediaType type;
+  final DateTime createdAt;
+  final double? latitude;
+  final double? longitude;
+  final String? locationName;
+
+  MediaItem({
+    required this.id, required this.path, required this.type,
+    required this.createdAt, this.latitude, this.longitude, this.locationName,
+  });
+
+  Map&lt;String, dynamic&gt; toMap() =&gt; {
+    'id': id, 'path': path, 'type': type.index,
+    'createdAt': createdAt.toIso8601String(),
+    'latitude': latitude, 'longitude': longitude,
+    'locationName': locationName,
+  };
+
+  factory MediaItem.fromMap(Map map) =&gt; MediaItem(
+    id: map['id'], path: map['path'],
+    type: MediaType.values[map['type']],
+    createdAt: DateTime.parse(map['createdAt']),
+    latitude: map['latitude'], longitude: map['longitude'],
+    locationName: map['locationName'],
+  );
+}
+
+class MediaItemAdapter extends TypeAdapter&lt;MediaItem&gt; {
+  @override final int typeId = 0;
+  @override MediaItem read(BinaryReader r) =&gt; MediaItem.fromMap(r.readMap());
+  @override void write(BinaryWriter w, MediaItem o) =&gt; w.writeMap(o.toMap());
+}</div>
+
+<h2>Файл models/audio_item.dart — модель аудио с Hive-адаптером</h2>
+<div class="code">import 'package:hive/hive.dart';
+
+enum AudioOrigin { file, url }
+
+class AudioItem {
+  final String id;
+  final String title;
+  final String path; // file path or URL
+  final AudioOrigin source;
+  final DateTime addedAt;
+
+  AudioItem({
+    required this.id, required this.title, required this.path,
+    required this.source, required this.addedAt,
+  });
+
+  Map&lt;String, dynamic&gt; toMap() =&gt; {
+    'id': id, 'title': title, 'path': path,
+    'source': source.index, 'addedAt': addedAt.toIso8601String(),
+  };
+
+  factory AudioItem.fromMap(Map map) =&gt; AudioItem(
+    id: map['id'], title: map['title'], path: map['path'],
+    source: AudioOrigin.values[map['source']],
+    addedAt: DateTime.parse(map['addedAt']),
+  );
+}
+
+class AudioItemAdapter extends TypeAdapter&lt;AudioItem&gt; {
+  @override final int typeId = 1;
+  @override AudioItem read(BinaryReader r) =&gt; AudioItem.fromMap(r.readMap());
+  @override void write(BinaryWriter w, AudioItem o) =&gt; w.writeMap(o.toMap());
+}</div>
+
+<h2>Файл services/database_service.dart — сервис базы данных Hive</h2>
+<div class="code">import 'package:hive_flutter/hive_flutter.dart';
+import '../models/media_item.dart';
+import '../models/audio_item.dart';
+
+class DatabaseService {
+  static const String mediaBoxName = 'media_items';
+  static const String audioBoxName = 'audio_items';
+
+  static Future&lt;void&gt; init() async {
+    await Hive.initFlutter();
+    Hive.registerAdapter(MediaItemAdapter());
+    Hive.registerAdapter(AudioItemAdapter());
+    await Hive.openBox&lt;MediaItem&gt;(mediaBoxName);
+    await Hive.openBox&lt;AudioItem&gt;(audioBoxName);
+  }
+
+  // Media CRUD
+  static Box&lt;MediaItem&gt; get mediaBox =&gt; Hive.box(mediaBoxName);
+  static Future&lt;void&gt; addMedia(MediaItem item) =&gt; mediaBox.put(item.id, item);
+  static List&lt;MediaItem&gt; getAllMedia() {
+    final items = mediaBox.values.toList();
+    items.sort((a, b) =&gt; b.createdAt.compareTo(a.createdAt));
+    return items;
+  }
+  static Future&lt;void&gt; deleteMedia(String id) =&gt; mediaBox.delete(id);
+
+  // Audio CRUD
+  static Box&lt;AudioItem&gt; get audioBox =&gt; Hive.box(audioBoxName);
+  static Future&lt;void&gt; addAudio(AudioItem item) =&gt; audioBox.put(item.id, item);
+  static List&lt;AudioItem&gt; getAllAudio() {
+    final items = audioBox.values.toList();
+    items.sort((a, b) =&gt; b.addedAt.compareTo(a.addedAt));
+    return items;
+  }
+  static Future&lt;void&gt; deleteAudio(String id) =&gt; audioBox.delete(id);
+}</div>
+
+<h2>Файл services/location_service.dart — сервис геолокации</h2>
+<div class="code">import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+
+class LocationService {
+  static Future&lt;Position?&gt; getCurrentPosition() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return null;
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return null;
+    }
+    if (permission == LocationPermission.deniedForever) return null;
+
+    return await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    );
+  }
+
+  static Future&lt;String?&gt; getLocationName(double lat, double lng) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(lat, lng);
+      if (placemarks.isNotEmpty) {
+        final p = placemarks.first;
+        final parts = [
+          if (p.locality?.isNotEmpty == true) p.locality!,
+          if (p.country?.isNotEmpty == true) p.country!,
+        ];
+        return parts.isNotEmpty ? parts.join(', ') : null;
+      }
+    } catch (_) {}
+    return null;
+  }
+}</div>
+
+<h2>Файл screens/gallery_screen.dart — экран галереи (лента Instagram)</h2>
+<p>Основной экран содержит ListView с карточками-постами. Каждая карточка показывает фото или видео (с контролами перемотки через Chewie), дату создания и геолокацию. Фото/видео добавляются через image_picker из галереи или камеры.</p>
+<div class="code">// Ключевые моменты:
+// 1. ListView.builder — бесконечная лента, как Instagram
+// 2. _FeedCard — карточка с фото/видео, датой и локацией
+// 3. При добавлении — запрос геопозиции через LocationService
+// 4. Видео отображается через VideoPlayerWidget (Chewie)
+// 5. Все данные сохраняются в Hive через DatabaseService
+
+class GalleryScreen extends StatefulWidget { ... }
+
+class _GalleryScreenState extends State&lt;GalleryScreen&gt; {
+  Future&lt;void&gt; _addMedia(MediaType type) async {
+    // 1. Выбор файла через image_picker
+    // 2. Получение GPS координат
+    // 3. Создание MediaItem с геотегом
+    // 4. Сохранение в Hive
+  }
+}</div>
+
+<h2>Файл screens/music_screen.dart — экран музыки</h2>
+<p>Экран с плеером и списком треков. Поддерживает загрузку локальных аудиофайлов и добавление URL-ссылок. Плеер через just_audio с play/pause/seek.</p>
+<div class="code">// Ключевые моменты:
+// 1. AudioPlayer (just_audio) — воспроизведение файлов и URL
+// 2. Slider — перемотка аудио
+// 3. FilePicker — выбор локальных аудиофайлов
+// 4. Диалог добавления URL с полями Title и URL
+// 5. Все треки сохраняются в Hive
+
+class MusicScreen extends StatefulWidget { ... }
+
+class _MusicScreenState extends State&lt;MusicScreen&gt; {
+  final AudioPlayer _player = AudioPlayer();
+
+  Future&lt;void&gt; _playTrack(AudioItem track) async {
+    if (track.source == AudioOrigin.url) {
+      await _player.setUrl(track.path);
+    } else {
+      await _player.setFilePath(track.path);
+    }
+    await _player.play();
+  }
+}</div>
+
+<h2>Файл widgets/video_player_widget.dart — виджет видеоплеера</h2>
+<div class="code">// Chewie предоставляет:
+// - Play/Pause
+// - Перемотка (seek bar)
+// - Полноэкранный режим
+// - Отображение прогресса
+
+class VideoPlayerWidget extends StatefulWidget {
+  final String videoPath;
+  ...
+}
+
+class _VideoPlayerWidgetState extends State&lt;VideoPlayerWidget&gt; {
+  late VideoPlayerController _videoController;
+  ChewieController? _chewieController;
+
+  Future&lt;void&gt; _initVideo() async {
+    _videoController = VideoPlayerController.file(File(widget.videoPath));
+    await _videoController.initialize();
+    _chewieController = ChewieController(
+      videoPlayerController: _videoController,
+      autoPlay: false,
+      allowFullScreen: true,
+      showControlsOnInitialize: true,
+    );
+  }
+}</div>
+
+<h2>Настройка разрешений</h2>
+<p><b>Android (AndroidManifest.xml):</b></p>
+<div class="code">&lt;uses-permission android:name="android.permission.INTERNET"/&gt;
+&lt;uses-permission android:name="android.permission.CAMERA"/&gt;
+&lt;uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/&gt;
+&lt;uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/&gt;
+&lt;uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/&gt;
+&lt;uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/&gt;</div>
+
+<p><b>iOS (Info.plist):</b></p>
+<div class="code">NSCameraUsageDescription — доступ к камере для съёмки фото
+NSPhotoLibraryUsageDescription — доступ к медиатеке
+NSMicrophoneUsageDescription — микрофон для записи видео
+NSLocationWhenInUseUsageDescription — геолокация для геотегов</div>
+
+<h2>Критерии оценки</h2>
+<table>
+  <tr><th>Оценка</th><th>Требование</th><th>Реализация</th></tr>
+  <tr><td>3</td><td>Галерея в виде ленты + перемотка видео</td><td>ListView.builder + Chewie (seek bar, полноэкранный режим)</td></tr>
+  <tr><td>4</td><td>Раздел «Музыка»: загрузка файлов и URL, play/pause/seek</td><td>just_audio + file_picker + диалог URL + Slider перемотки</td></tr>
+  <tr><td>5</td><td>Hive БД + геопозиция при сохранении фото</td><td>Hive с TypeAdapter + geolocator + geocoding</td></tr>
+</table>
+
+<h2>Вывод</h2>
+<p>В ходе практической работы было разработано мобильное приложение «Gallery & Music» на Flutter, реализующее все требования на оценку 5:</p>
+<ul>
+  <li>Галерея фотографий и видео в формате ленты (Instagram-стиль) с полноценным видеоплеером Chewie (перемотка, полный экран, play/pause)</li>
+  <li>Раздел «Музыка» с возможностью загрузки аудиофайлов с устройства и добавления URL-ссылок на аудио, воспроизведением через just_audio с поддержкой паузы и перемотки</li>
+  <li>Все данные (медиа и аудио) сохраняются в локальной базе данных Hive с кастомными TypeAdapter</li>
+  <li>При сохранении фотографий автоматически определяется геопозиция через пакет geolocator, а название места — через geocoding</li>
+</ul>
+<p>Приложение использует Material Design 3, NavigationBar для переключения между разделами и следует принципам чистой архитектуры с разделением на модели, сервисы, экраны и виджеты.</p>
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+name: gallery_music
+description: "Gallery + Music app with Hive DB and geolocation"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Video player
+  video_player: ^2.9.3
+
+  # Audio player
+  just_audio: ^0.9.43
+
+  # Image/video picker
+  image_picker: ^1.1.2
+
+  # File picker (for audio files)
+  file_picker: ^8.1.7
+
+  # Hive database
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Location
+  geolocator: ^13.0.2
+  geocoding: ^3.0.0
+
+  # Path provider
+  path_provider: ^2.1.5
+
+  # Permissions
+  permission_handler: ^11.3.1
+
+  # UUID
+  uuid: ^4.5.1
+
+  # Intl for date formatting
+  intl: ^0.20.2
+
+  # Cached network image
+  cached_network_image: ^3.4.1
+
+  # Chewie for better video controls
+  chewie: ^1.8.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
