@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1012674950367",
+    "project_id": "myhabits-final-1775762139",
+    "storage_bucket": "myhabits-final-1775762139.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1012674950367:android:caf153d03e943ebf8c256a",
+        "android_client_info": {
+          "package_name": "com.student.my_habits"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYEP9HC6jT2rmqqj4IVOkmbzzqDP8i6_8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
